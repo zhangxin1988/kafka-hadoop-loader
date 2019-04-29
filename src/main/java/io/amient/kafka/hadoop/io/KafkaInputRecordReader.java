@@ -172,6 +172,7 @@ public class KafkaInputRecordReader extends RecordReader<MsgMetadataWritable, By
             } else {
                 iterator = messages.iterator();
                 if (!iterator.hasNext()) {
+                    log.info("messages is empty");
                     return false;
                 }
             }
