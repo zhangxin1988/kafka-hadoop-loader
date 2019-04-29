@@ -26,6 +26,7 @@ import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
+import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -71,7 +72,7 @@ public class HadoopJob extends Configured implements Tool {
             KafkaInputFormat.configureAutoOffsetReset(conf, cmd.getOptionValue("offset-reset"));
         }
 
-        //JobConf jobConf = new JobConf(conf);
+        JobConf jobConf = new JobConf(conf);
 
         /*
         if (cmd.hasOption("remote")) {
@@ -90,17 +91,16 @@ public class HadoopJob extends Configured implements Tool {
 
         if (new File(jarTarget.toUri()).exists()) {
             // running from IDE/ as maven
-            //jobConf.setJar(jarTarget.toUri().getPath());
+            jobConf.setJar(jarTarget.toUri().getPath());
             LOG.info("Using target jar: " + jarTarget.toString());
         } else {
             // running from jar remotely or locally
-            //jobConf.setJarByClass(getClass());
-            //LOG.info("Using parent jar: " + jobConf.getJar());
+            jobConf.setJarByClass(getClass());
+            LOG.info("Using parent jar: " + jobConf.getJar());
         }
 
 
-        Job job = Job.getInstance(conf, "kafka.hadoop.loader");
-        job.setJarByClass(HadoopJob.class);
+        Job job = Job.getInstance(jobConf, "kafka.hadoop.loader");
 
         job.setInputFormatClass(KafkaInputFormat.class);
         job.setMapperClass(HadoopJobMapper.class);
@@ -111,6 +111,7 @@ public class HadoopJob extends Configured implements Tool {
 
         MultiOutputFormat.setOutputPath(job, new Path(hdfsPath));
         MultiOutputFormat.setCompressOutput(job, cmd.getOptionValue("compress-output", "on").equals("on"));
+        MultiOutputFormat.configurePathFormat(conf, "'t={T}/d='yyyy-MM-dd'/h='HH");
 
         LOG.info("Output hdfs location: {}", hdfsPath);
         LOG.info("Output hdfs compression: {}", MultiOutputFormat.getCompressOutput(job));
