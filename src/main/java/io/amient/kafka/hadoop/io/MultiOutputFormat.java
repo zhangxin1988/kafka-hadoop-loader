@@ -52,19 +52,14 @@ public class MultiOutputFormat extends FileOutputFormat<MsgMetadataWritable, Byt
 
     private static final String CONFIG_PATH_FORMAT = "multioutput.path.format";
 
-    private static String pathFormat;
 
     /**
      * @param format relative path format, e.g. 'topic={T}/d='yyyy-MM-dd'/h='HH'/{P}'
      */
     public static void configurePathFormat(Configuration conf, String format) {
-        pathFormat = format;
         conf.set(CONFIG_PATH_FORMAT, format);
     }
 
-    public static String getPathFormat() {
-        return pathFormat;
-    }
 
 
     public void checkOutputSpecs(JobContext job) throws IOException {
