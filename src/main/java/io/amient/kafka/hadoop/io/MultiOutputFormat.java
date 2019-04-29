@@ -112,10 +112,14 @@ public class MultiOutputFormat extends FileOutputFormat<MsgMetadataWritable, Byt
                 }
                 String P = String.valueOf(key.getSplit().getPartition());
                 String T = key.getSplit().getTopic();
-                String suffixPath = hasTS ? timeFormat.format(key.getTimestamp()) : pathFormat.replaceAll("'", "");
-                suffixPath = suffixPath.replace("{T}", T);
-                suffixPath = suffixPath.replace("{P}", P);
-                suffixPath += "/" + T + "-"+ P + "-" + offsetFormat.format(key.getSplit().getStartOffset());
+
+                //String suffixPath = hasTS ? timeFormat.format(key.getTimestamp()) : pathFormat.replaceAll("'", "");
+                //suffixPath = suffixPath.replace("{T}", T);
+                //suffixPath = suffixPath.replace("{P}", P);
+                //suffixPath += "/" + T + "-"+ P + "-" + offsetFormat.format(key.getSplit().getStartOffset());
+                //suffixPath += extension;
+
+                String suffixPath = T + "-"+ P + "-" + offsetFormat.format(key.getSplit().getStartOffset());
                 suffixPath += extension;
                 RecordWriter<Void, BytesWritable> rw = this.recordWriters.get(suffixPath);
                 try {
