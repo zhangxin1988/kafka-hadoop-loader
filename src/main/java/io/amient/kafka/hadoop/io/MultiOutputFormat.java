@@ -120,6 +120,8 @@ public class MultiOutputFormat extends FileOutputFormat<MsgMetadataWritable, Byt
                 RecordWriter<Void, BytesWritable> rw = this.recordWriters.get(suffixPath);
                 try {
                     if (rw == null) {
+                        log.info("prefixPath: {}",prefixPath);
+                        log.info("suffixPath: {}",suffixPath);
                         Path file = new Path(prefixPath, suffixPath);
                         FileSystem fs = file.getFileSystem(conf);
                         FSDataOutputStream fileOut = fs.create(file, false);
