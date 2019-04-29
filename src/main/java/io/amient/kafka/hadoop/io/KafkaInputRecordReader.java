@@ -94,7 +94,12 @@ public class KafkaInputRecordReader extends RecordReader<MsgMetadataWritable, By
         earliestOffset = getEarliestOffset();
         latestOffset = getLatestOffset();
 
+        log.info("Topic:{} ,Partition:{},earliestOffset:{},latestOffset:{}",topicAndPartition.topic(),topicAndPartition.partition(),earliestOffset,latestOffset);
+
         String reset = conf.get(KafkaInputFormat.CONFIG_KAFKA_AUTOOFFSET_RESET, "watermark");
+
+        log.info("offsetReset:{}",reset);
+
         if ("earliest".equals(reset)) {
             resetWatermark(earliestOffset);
         } else if ("latest".equals(reset)) {

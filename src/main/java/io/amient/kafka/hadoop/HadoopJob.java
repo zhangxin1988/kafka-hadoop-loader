@@ -67,6 +67,7 @@ public class HadoopJob extends Configured implements Tool {
         }
 
         if (cmd.getOptionValue("offset-reset") != null) {
+            LOG.info("Using offset-reset: {}",cmd.getOptionValue("offset-reset"));
             KafkaInputFormat.configureAutoOffsetReset(conf, cmd.getOptionValue("offset-reset"));
         }
 
