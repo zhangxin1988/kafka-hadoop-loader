@@ -115,6 +115,7 @@ public class HadoopJob extends Configured implements Tool {
 
         LOG.info("Output hdfs location: {}", hdfsPath);
         LOG.info("Output hdfs compression: {}", MultiOutputFormat.getCompressOutput(job));
+        LOG.info("Output hdfs path format: {}",MultiOutputFormat.getPathFormat());
 
         return job.waitForCompletion(true) ? 0 : -1;
     }
