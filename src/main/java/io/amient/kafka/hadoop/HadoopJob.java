@@ -81,23 +81,6 @@ public class HadoopJob extends Configured implements Tool {
             jobConf.set("mapred.job.tracker", ip + ":8021");
         }
         */
-        conf.set("mapreduce.framework.name","yarn");
-        //yarn HA config
-        conf.set("yarn.resourcemanager.ha.enabled","true");
-        conf.set("yarn.resourcemanager.zk-address","192.168.60.11:2181,192.168.40.17:2181,192.168.80.33:2181");
-        conf.set("yarn.resourcemanager.cluster-id","yarnRM");
-        conf.set("yarn.resourcemanager.ha.rm-ids","rm95,rm96");
-        conf.set("yarn.resourcemanager.address.rm95","192.168.60.11:8032");
-        conf.set("yarn.resourcemanager.address.rm96","192.168.80.33:8032");
-
-        //hdfs HA config
-        conf.set("dfs.nameservices","nameservice1");
-        conf.set("fs.defaultFS","hdfs://nameservice1");
-        conf.set("dfs.ha.namenodes.nameservice1","namenode87,namenode97");
-        conf.set("dfs.namenode.rpc-address.nameservice1.namenode87","node1.secoo-inc.com:8020");
-        conf.set("dfs.namenode.rpc-address.nameservice1.namenode97","node3.secoo-inc.com:8020");
-        conf.set("dfs.client.failover.proxy.provider.nameservice1","org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider");
-
 
         Path jarTarget = new Path(
                 getClass().getProtectionDomain().getCodeSource().getLocation()
