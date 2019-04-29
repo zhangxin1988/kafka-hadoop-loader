@@ -22,12 +22,10 @@ package io.amient.kafka.hadoop;
 import io.amient.kafka.hadoop.io.KafkaInputFormat;
 import io.amient.kafka.hadoop.io.MultiOutputFormat;
 import org.apache.commons.cli.*;
-import org.apache.commons.lang.NotImplementedException;
 import org.apache.hadoop.conf.Configuration;
 import org.apache.hadoop.conf.Configured;
 import org.apache.hadoop.fs.Path;
 import org.apache.hadoop.io.Text;
-import org.apache.hadoop.mapred.JobConf;
 import org.apache.hadoop.mapreduce.Job;
 import org.apache.hadoop.util.Tool;
 import org.apache.hadoop.util.ToolRunner;
@@ -40,7 +38,7 @@ public class HadoopJob extends Configured implements Tool {
     private final static org.slf4j.Logger LOG = LoggerFactory.getLogger(HadoopJob.class);
 
     static {
-        Configuration.addDefaultResource("core-site.xml");
+        //Configuration.addDefaultResource("core-site.xml");
     }
 
     public int run(String[] args) throws Exception {
@@ -68,11 +66,13 @@ public class HadoopJob extends Configured implements Tool {
             CheckpointManager.configureUseZooKeeper(conf, cmd.getOptionValue("consumer-group", "dev-hadoop-loader"));
         }
 
-        if (cmd.getOptionValue("autooffset-reset") != null) {
-            KafkaInputFormat.configureAutoOffsetReset(conf, cmd.getOptionValue("autooffset-reset"));
+        if (cmd.getOptionValue("offset-reset") != null) {
+            KafkaInputFormat.configureAutoOffsetReset(conf, cmd.getOptionValue("offset-reset"));
         }
 
-        JobConf jobConf = new JobConf(conf);
+        //JobConf jobConf = new JobConf(conf);
+
+        /*
         if (cmd.hasOption("remote")) {
             String ip = cmd.getOptionValue("remote");
             LOG.info("Default file system: hdfs://" + ip + ":8020/");
@@ -80,6 +80,24 @@ public class HadoopJob extends Configured implements Tool {
             LOG.info("Remote jobtracker: " + ip + ":8021");
             jobConf.set("mapred.job.tracker", ip + ":8021");
         }
+        */
+        conf.set("mapreduce.framework.name","yarn");
+        //yarn HA config
+        conf.set("yarn.resourcemanager.ha.enabled","true");
+        conf.set("yarn.resourcemanager.zk-address","192.168.60.11:2181,192.168.40.17:2181,192.168.80.33:2181");
+        conf.set("yarn.resourcemanager.cluster-id","yarnRM");
+        conf.set("yarn.resourcemanager.ha.rm-ids","rm95,rm96");
+        conf.set("yarn.resourcemanager.address.rm95","192.168.60.11:8032");
+        conf.set("yarn.resourcemanager.address.rm96","192.168.80.33:8032");
+
+        //hdfs HA config
+        conf.set("dfs.nameservices","nameservice1");
+        conf.set("fs.defaultFS","hdfs://nameservice1");
+        conf.set("dfs.ha.namenodes.nameservice1","namenode87,namenode97");
+        conf.set("dfs.namenode.rpc-address.nameservice1.namenode87","node1.secoo-inc.com:8020");
+        conf.set("dfs.namenode.rpc-address.nameservice1.namenode97","node3.secoo-inc.com:8020");
+        conf.set("dfs.client.failover.proxy.provider.nameservice1","org.apache.hadoop.hdfs.server.namenode.ha.ConfiguredFailoverProxyProvider");
+
 
         Path jarTarget = new Path(
                 getClass().getProtectionDomain().getCodeSource().getLocation()
@@ -88,16 +106,17 @@ public class HadoopJob extends Configured implements Tool {
 
         if (new File(jarTarget.toUri()).exists()) {
             // running from IDE/ as maven
-            jobConf.setJar(jarTarget.toUri().getPath());
+            //jobConf.setJar(jarTarget.toUri().getPath());
             LOG.info("Using target jar: " + jarTarget.toString());
         } else {
             // running from jar remotely or locally
-            jobConf.setJarByClass(getClass());
-            LOG.info("Using parent jar: " + jobConf.getJar());
+            //jobConf.setJarByClass(getClass());
+            //LOG.info("Using parent jar: " + jobConf.getJar());
         }
 
 
-        Job job = Job.getInstance(jobConf, "kafka.hadoop.loader");
+        Job job = Job.getInstance(conf, "kafka.hadoop.loader");
+        job.setJarByClass(HadoopJob.class);
 
         job.setInputFormatClass(KafkaInputFormat.class);
         job.setMapperClass(HadoopJobMapper.class);
